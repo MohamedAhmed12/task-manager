@@ -1,11 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {useSignUp} from "../hooks/useSignUp";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {zodResolver} from "@hookform/resolvers/zod";
+import Link from "next/link";
+import {useState} from "react";
+import {useForm} from "react-hook-form";
+import {z} from "zod";
 
 const signupSchema = z.object({
   email: z.string().nonempty("Email is required").email("Invalid email"),
@@ -13,6 +15,7 @@ const signupSchema = z.object({
     .string()
     .nonempty("Password is required")
     .min(6, "Password must be at least 6 characters"),
+  name: z.string().nonempty("Name is required"),
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
@@ -30,16 +33,23 @@ export default function Register({
     resolver: zodResolver(signupSchema),
   });
 
-  const [error, setError] = useState<string | null>(null);
+  const {mutate, isPending, error} = useSignUp({
+    onSuccess: (error: Error) => {
+      console.log(error);
+    },
+    onError: (error: Error) => {
+      console.log(error);
+    },
+  });
 
   const onSubmit = async (data: SignupFormData) => {
-    console.log(data);
+    const res = await mutate(data);
+    console.log("result", res);
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow">
       <h2 className="text-2xl font-semibold mb-4">Sign Up</h2>
-      {error && <p className="text-red-500 mb-3">{error}</p>}
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -70,6 +80,18 @@ export default function Register({
             />
             {errors.email && (
               <p className="text-red-500">{errors.email.message}</p>
+            )}
+          </div>
+          <div className="grid">
+            <Input
+              id="name"
+              type="text"
+              {...register("name")}
+              placeholder="Name"
+              onChange={() => clearErrors("name")}
+            />
+            {errors.name && (
+              <p className="text-red-500">{errors.name.message}</p>
             )}
           </div>
           <div className="grid">
