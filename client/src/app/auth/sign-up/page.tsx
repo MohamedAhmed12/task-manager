@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useSignUp } from "../hooks/useSignUp";
+import { signUp } from "../actions/register";
 
 const signupSchema = z.object({
   email: z.string().nonempty("Email is required").email("Invalid email"),
@@ -22,10 +22,7 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
-export default function Register({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+export default function Register() {
   const router = useRouter();
   const {
     register,
@@ -36,7 +33,7 @@ export default function Register({
     resolver: zodResolver(signupSchema),
   });
 
-  const {mutateAsync, isPending} = useSignUp({
+  const {mutateAsync, isPending} = signUp({
     onSuccess: (data) => {
       router.replace(`/auth/login`);
     },
@@ -59,7 +56,6 @@ export default function Register({
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col"
-        {...props}
       >
         <div className="flex flex-col justify-center items-center font-noto-sans">
           <div className="mb-6 text-[40px] text-deep-blue-gray font-bold leading-[1.1] pb-3">
@@ -123,7 +119,7 @@ export default function Register({
             Sign Up
           </Button>
         </div>
-        <div className="text-center text-xs ">
+        <div className="text-center text-xs mt-2">
           Already have an account?
           <Link href="/auth/login">
             <span className="underline underline-offset-4 px-1">Sign In.</span>
