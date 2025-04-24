@@ -11,19 +11,19 @@ export interface RegisterResponse {
   message: string;
 }
 
-export type UseSignUpProps = Omit<
+export type RegisterProps = Omit<
   UseMutationOptions<RegisterResponse, Error, RegisterData, unknown>,
   "muationKey" | "mutationFn"
 >;
 
 const registerUser = async (data: RegisterData): Promise<T> => {
-  const response = await axios.post("/register", data);
+  const response = await axios.post("/api/register", data);
   return response;
 };
 
-export const useSignUp = ({...options}: UseSignUpProps) => {
+export const signUp = ({...options}: RegisterProps) => {
   return useMutation({
-    mutationKey: ["signup"],
+    mutationKey: ["register"],
     mutationFn: registerUser,
     ...options,
   });
