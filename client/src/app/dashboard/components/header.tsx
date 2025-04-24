@@ -1,6 +1,5 @@
 "use client";
 
-import { getAuthUser } from "../actions/getAuthUser";
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -11,15 +10,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getAuthUser } from "../actions/getAuthUser";
 
 export function Header() {
   const {data} = getAuthUser();
 
-  //   username as derived state
-  const userName = data?.data?.name;
-
   return (
-    <div className="flex justify-end items-center w-full p-3">
+    <div className="flex justify-end items-center w-full">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Avatar className="w-11 h-11 cursor-pointer">
