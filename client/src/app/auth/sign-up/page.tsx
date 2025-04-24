@@ -4,9 +4,8 @@ import {useSignUp} from "../hooks/useSignUp";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {zodResolver} from "@hookform/resolvers/zod";
-import Link from "next/link";
-import {useState} from "react";
 import {useForm} from "react-hook-form";
+import {toast} from "sonner";
 import {z} from "zod";
 
 const signupSchema = z.object({
@@ -34,11 +33,14 @@ export default function Register({
   });
 
   const {mutate, isPending, error} = useSignUp({
-    onSuccess: (error: Error) => {
-      console.log(error);
+    onSuccess: (data) => {
+      console.log(data);
     },
     onError: (error: Error) => {
-      console.log(error);
+      const errMsg: string =
+        error?.response?.data?.message || "Something went wrong!";
+      // we are using sonner instead of toast as it is deprecated in shadcn
+      toast.error(errMsg);
     },
   });
 
