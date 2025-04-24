@@ -13,5 +13,5 @@ export async function middleware(request: NextRequest) {
 
 // apply the middleware to make home page only protected
 export const config = {
-  matcher: ["/"],
+  matcher: ["/", "/dashboard"],
 };
