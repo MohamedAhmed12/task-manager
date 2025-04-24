@@ -4,6 +4,7 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -80,7 +81,8 @@ export default function Register({
               type="text"
               {...register("email")}
               placeholder="Email"
-              onChange={() => clearErrors("email")} // Clear error when the user is typing in the email field
+              onChange={() => clearErrors("email")}
+              className={errors.email ? "border-red-500" : ""}
             />
             {errors.email && (
               <p className="text-red-500">{errors.email.message}</p>
@@ -93,6 +95,7 @@ export default function Register({
               {...register("name")}
               placeholder="Name"
               onChange={() => clearErrors("name")}
+              className={errors.email ? "border-red-500" : ""}
             />
             {errors.name && (
               <p className="text-red-500">{errors.name.message}</p>
@@ -105,6 +108,7 @@ export default function Register({
               {...register("password")}
               placeholder="password"
               onChange={() => clearErrors("password")}
+              className={errors.email ? "border-red-500" : ""}
             />
             {errors.password && (
               <p className="text-red-500">{errors.password.message}</p>
@@ -118,6 +122,12 @@ export default function Register({
             {isPending && <Icons.loaderCircle className="animate-spin" />}
             Sign Up
           </Button>
+        </div>
+        <div className="text-center text-xs ">
+          Already have an account?
+          <Link href="/auth/login">
+            <span className="underline underline-offset-4 px-1">Sign In.</span>
+          </Link>
         </div>
       </form>
     </div>
