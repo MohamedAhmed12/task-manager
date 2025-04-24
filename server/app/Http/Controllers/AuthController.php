@@ -26,4 +26,23 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'User created successfully'], 201);
     }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $user = Auth::user();
+            $token = $user->createToken('task_manager')->plainTextToken;
+
+            return response()->json(['token' => $token]);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => ['The provided credentials are invalid.'],
+        ]);
+    }
 }
