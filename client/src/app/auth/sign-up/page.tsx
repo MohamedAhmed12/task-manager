@@ -1,12 +1,14 @@
 "use client";
 
-import {useSignUp} from "../hooks/useSignUp";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useForm} from "react-hook-form";
-import {toast} from "sonner";
-import {z} from "zod";
+import { Icons } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { useSignUp } from "../hooks/useSignUp";
 
 const signupSchema = z.object({
   email: z.string().nonempty("Email is required").email("Invalid email"),
@@ -23,6 +25,7 @@ export default function Register({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -32,9 +35,9 @@ export default function Register({
     resolver: zodResolver(signupSchema),
   });
 
-  const {mutate, isPending, error} = useSignUp({
+  const {mutateAsync, isPending} = useSignUp({
     onSuccess: (data) => {
-      console.log(data);
+      router.replace(`/auth/login`);
     },
     onError: (error: Error) => {
       const errMsg: string =
@@ -45,8 +48,7 @@ export default function Register({
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    const res = await mutate(data);
-    console.log("result", res);
+    await mutateAsync(data);
   };
 
   return (
@@ -113,6 +115,7 @@ export default function Register({
             type="submit"
             className="w-full bg-blue-400 hover:bg-blue-400 cursor-pointer mt-3"
           >
+            {isPending && <Icons.loaderCircle className="animate-spin" />}
             Sign Up
           </Button>
         </div>
