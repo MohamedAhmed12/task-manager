@@ -20,15 +20,18 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { deleteTask } from "../actions/deleteTask";
+import { TaskStatus } from "../actions/fetchTasks";
 import { columns, Task } from "./task-columns";
 import { UpdateTask } from "./update-task";
 
 export function TaskTable({
   tasks,
+  filteredStatus,
   isLoading,
   isFetched,
 }: {
   tasks: Task[];
+  filteredStatus: TaskStatus;
   isLoading: boolean;
   isFetched: boolean;
 }) {
@@ -98,8 +101,10 @@ export function TaskTable({
                 </TableCell>
               ))}
               <TableCell className="flex gap-2">
-                
-                <UpdateTask originalTask={row.original} />
+                <UpdateTask
+                  originalTask={row.original}
+                  filteredStatus={filteredStatus}
+                />
 
                 {deleteTaskIsPending &&
                 deleteTaskVariables == row.original.id ? (

@@ -26,6 +26,7 @@ export default function Dashboard() {
       </div>
       <TaskTable
         tasks={data?.data || []}
+        filteredStatus={filteredStatus}
         isLoading={isLoading}
         isFetched={isFetched}
       />

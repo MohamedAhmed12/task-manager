@@ -1,16 +1,24 @@
 "use client";
 
+import {TaskStatus} from "../actions/fetchTasks";
 import {useUpdateTask} from "../hooks/useUpdateTask";
 import {Task} from "./task-columns";
 import TaskDialog, {TaskFormData} from "./task-dialog";
 import {useState} from "react";
 import {toast} from "sonner";
 
-export function UpdateTask({originalTask}: {originalTask: Task}) {
+export function UpdateTask({
+  originalTask,
+  filteredStatus,
+}: {
+  originalTask: Task;
+  filteredStatus: TaskStatus;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [task, setTask] = useState(originalTask);
 
   const {mutateAsync, isPending} = useUpdateTask({
+    filteredStatus,
     onSuccess: async (data) => {
       toast.success("Task updated successfully!");
       setIsOpen(false);

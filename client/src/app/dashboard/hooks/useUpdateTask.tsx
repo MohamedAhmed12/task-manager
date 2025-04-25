@@ -4,6 +4,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import axios from "../../../../lib/axios";
+import { TaskStatus } from "../actions/fetchTasks";
 import { Task } from "../components/task-columns";
 import { TaskFormData } from "../components/task-dialog";
 
@@ -12,32 +13,21 @@ export interface TaskData {
   data: TaskFormData;
 }
 
-export type TasksProps = Omit<
+export type TasksProps = {filteredStatus: TaskStatus} & Omit<
   UseMutationOptions<Task, Error, TaskData, unknown>,
   "mutationKey" | "mutationFn"
 >;
-
-const updateTaskInCache = (
-  queryClient: ReturnType<typeof useQueryClient>,
-  updatedTask: Task
-) => {
-  queryClient.setQueryData(["fetchTasks"], (oldData) => {
-    if (!oldData) return {data: []};
-
-    const updatedData = oldData.data.map((task: Task) =>
-      task.id === updatedTask.id ? {...task, ...updatedTask} : task
-    );
-
-    return {...oldData, data: updatedData};
-  });
-};
 
 const update = async ({taskId, data}: TaskData): Promise<Task> => {
   const response = await axios.put(`/tasks/${taskId}`, data);
   return response.data;
 };
 
-export const useUpdateTask = ({onSuccess, ...options}: TasksProps) => {
+export const useUpdateTask = ({
+  filteredStatus,
+  onSuccess,
+  ...options
+}: TasksProps) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -47,8 +37,12 @@ export const useUpdateTask = ({onSuccess, ...options}: TasksProps) => {
       if (onSuccess) {
         onSuccess(data, variables, context);
       }
+
       if (data) {
-        updateTaskInCache(queryClient, data);
+        // invalidate cache regaridn this query to display the change on the table
+        queryClient.invalidateQueries({
+          queryKey: ["fetchTasks", filteredStatus],
+        });
       }
     },
     ...options,
