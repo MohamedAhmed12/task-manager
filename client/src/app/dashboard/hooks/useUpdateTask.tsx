@@ -41,7 +41,7 @@ export const useUpdateTask = ({
       if (data) {
         // invalidate cache regaridn this query to display the change on the table
         queryClient.invalidateQueries({
-          queryKey: ["fetchTasks", filteredStatus],
+          queryKey: ["fetchTasks"],
         });
       }
     },

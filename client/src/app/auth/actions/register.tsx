@@ -17,7 +17,7 @@ export type RegisterProps = Omit<
 >;
 
 const registerUser = async (data: RegisterData): Promise<T> => {
-  const response = await axios.post("/api/register", data);
+  const response = await axios.post("/register", data);
   return response;
 };
 

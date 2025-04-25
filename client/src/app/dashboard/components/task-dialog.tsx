@@ -58,10 +58,8 @@ export default function TaskDialog({
   });
 
   useEffect(() => {
-    if (isOpen == false) {
-      // reset form on closing the dialog
-      task ? reset(task) : reset();
-    }
+    // reset form on closing the dialog
+    task ? reset(task) : reset();
   }, [isOpen, task, reset]);
 
   return (

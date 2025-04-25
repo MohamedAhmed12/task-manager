@@ -19,6 +19,5 @@ export const fetchTasks = (status: TaskStatus) => {
   return useQuery({
     queryKey: ["fetchTasks", status],
     queryFn: () => listAllTasks(status),
-    staleTime: 150000,
   });
 };

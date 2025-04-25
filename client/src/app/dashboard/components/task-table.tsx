@@ -102,7 +102,7 @@ export function TaskTable({
               ))}
               <TableCell className="flex gap-2">
                 <UpdateTask
-                  originalTask={row.original}
+                  originalTask={tasks[parseInt(row.id) as number]}
                   filteredStatus={filteredStatus}
                 />
 

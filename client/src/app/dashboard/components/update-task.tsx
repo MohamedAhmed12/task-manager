@@ -4,7 +4,7 @@ import {TaskStatus} from "../actions/fetchTasks";
 import {useUpdateTask} from "../hooks/useUpdateTask";
 import {Task} from "./task-columns";
 import TaskDialog, {TaskFormData} from "./task-dialog";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {toast} from "sonner";
 
 export function UpdateTask({
@@ -16,6 +16,10 @@ export function UpdateTask({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [task, setTask] = useState(originalTask);
+
+  useEffect(() => {
+    setTask(originalTask);
+  }, [originalTask]);
 
   const {mutateAsync, isPending} = useUpdateTask({
     filteredStatus,
