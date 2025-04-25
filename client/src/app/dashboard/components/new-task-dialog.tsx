@@ -1,7 +1,8 @@
 "use client";
 
-import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import {createTask} from "../actions/createTask";
+import {Icons} from "@/components/icons";
+import {Button} from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,42 +12,64 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useState} from "react";
+import {useForm} from "react-hook-form";
+import {toast} from "sonner";
+import {z} from "zod";
 
 const taskSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
   description: z
     .string()
     .min(5, "Description must be at least 5 characters long"),
-  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+  due_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid date",
   }),
   status: z.enum(["pending", "in-progress", "completed"]),
 });
 
-type TaskFormData = z.infer<typeof taskSchema>;
+export type TaskFormData = z.infer<typeof taskSchema>;
 
 export function NewTaskDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: {errors},
+    reset,
   } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
   });
 
-  const onSubmit = async (data: TaskFormData) => {
-    console.log(data);
-  };
+  const {mutateAsync, isPending} = createTask({
+    onSuccess: async ({data}: {data: any}) => {
+      toast.success("Task created successfully!");
+      setIsOpen(false);
+      reset();
+    },
+    onError: (error: Error) => {
+      const errMsg: string =
+        error?.response?.data?.message || "Something went wrong!";
+
+      // we are using sonner instead of toast as it is deprecated in shadcn
+      toast.error(errMsg);
+    },
+  });
+
+  const onSubmit = async (data: TaskFormData) => await mutateAsync(data);
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="mb-10 cursor-pointer">
+        <Button
+          variant="outline"
+          className="mb-10 cursor-pointer"
+          onClick={() => setIsOpen(true)}
+        >
           <Icons.plus /> <span className="ml-2 capitalize">new task</span>
         </Button>
       </DialogTrigger>
@@ -80,9 +103,14 @@ export function NewTaskDialog() {
             <Label htmlFor="dueDate" className="mb-2">
               Due Date
             </Label>
-            <Input id="dueDate" type="date" {...register("dueDate")} className="block cursor-pointer"/>
-            {errors.dueDate && (
-              <span className="text-red-500">{errors.dueDate.message}</span>
+            <Input
+              id="dueDate"
+              type="date"
+              {...register("due_date")}
+              className="block cursor-pointer"
+            />
+            {errors.due_date && (
+              <span className="text-red-500">{errors.due_date.message}</span>
             )}
           </div>
           <div>
@@ -100,6 +128,9 @@ export function NewTaskDialog() {
           </div>
           <DialogFooter className="mt-6">
             <Button type="submit" className="cursor-pointer">
+              {isPending && (
+                <Icons.loaderCircle color="white" className="animate-spin" />
+              )}
               Create Task
             </Button>
           </DialogFooter>
