@@ -1,6 +1,4 @@
-"use client";
-
-import {createTask} from "../actions/createTask";
+import {TaskResponse} from "../actions/createTask";
 import {Icons} from "@/components/icons";
 import {Button} from "@/components/ui/button";
 import {
@@ -15,10 +13,9 @@ import {
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {zodResolver} from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
-import {useState} from "react";
+import {MutateOptions} from "@tanstack/react-query";
+import {useEffect} from "react";
 import {useForm} from "react-hook-form";
-import {toast} from "sonner";
 import {z} from "zod";
 
 const taskSchema = z.object({
@@ -34,10 +31,29 @@ const taskSchema = z.object({
 
 export type TaskFormData = z.infer<typeof taskSchema>;
 
-export function NewTaskDialog() {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
+interface TaskDialogProps {
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isPending: boolean;
+  // onSubmit: (data: TaskFormData) => Promise<void>;
+  onSubmit: (
+    variables: TaskFormData,
+    options?:
+      | MutateOptions<TaskResponse, Error, TaskFormData, unknown>
+      | undefined
+  ) => Promise<TaskResponse>;
+  task?: TaskFormData;
+  actionType: "create" | "update";
+}
 
+export default function TaskDialog({
+  isOpen,
+  setIsOpen,
+  isPending,
+  onSubmit,
+  task,
+  actionType,
+}: TaskDialogProps) {
   const {
     register,
     handleSubmit,
@@ -45,28 +61,15 @@ export function NewTaskDialog() {
     reset,
   } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
+    defaultValues: task || {},
   });
 
-  const {mutateAsync, isPending} = createTask({
-    onSuccess: async ({data}: {data: any}) => {
-      toast.success("Task created successfully!");
-      setIsOpen(false);
+  useEffect(() => {
+    if (isOpen == false) {
+      // reset form on closing the dialog
       reset();
-      // re-invoke react query cash to update the tasks listed in it
-      queryClient.invalidateQueries({
-        queryKey: ["fetchTasks"],
-      });
-    },
-    onError: (error: Error) => {
-      const errMsg: string =
-        error?.response?.data?.message || "Something went wrong!";
-
-      // we are using sonner instead of toast as it is deprecated in shadcn
-      toast.error(errMsg);
-    },
-  });
-
-  const onSubmit = async (data: TaskFormData) => await mutateAsync(data);
+    }
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -76,14 +79,19 @@ export function NewTaskDialog() {
           className="mb-10 cursor-pointer"
           onClick={() => setIsOpen(true)}
         >
-          <Icons.plus /> <span className="ml-2 capitalize">new task</span>
+          <Icons.plus />
+          <span className="ml-2 capitalize">{actionType} task</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create a New Task</DialogTitle>
+          <DialogTitle>
+            {actionType === "create" ? "Create a New Task" : "Update Task"}
+          </DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new task.
+            {actionType === "create"
+              ? "Fill in the details to create a new task."
+              : "Update the details of the task."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-2">
@@ -137,7 +145,7 @@ export function NewTaskDialog() {
               {isPending && (
                 <Icons.loaderCircle color="white" className="animate-spin" />
               )}
-              Create Task
+              {actionType === "create" ? "Create Task" : "Update Task"}
             </Button>
           </DialogFooter>
         </form>

@@ -1,5 +1,5 @@
 import axios from "../../../../lib/axios";
-import {TaskFormData} from "../components/new-task-dialog";
+import {TaskFormData} from "../components/new-task";
 import {useMutation, UseMutationOptions} from "@tanstack/react-query";
 
 export interface TaskResponse {
