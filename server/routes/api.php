@@ -14,4 +14,4 @@ Route::get('user', function (Request $request) {
 
 
 // task APIs
-Route::apiResource('tasks', TaskController::class);
+Route::apiResource('tasks', TaskController::class)->middleware('auth:sanctum');

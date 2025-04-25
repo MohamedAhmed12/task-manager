@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Task::all();
+        $tasks = $request->user()->tasks;
+        return response()->json($tasks);
     }
 
     public function store(Request $request)
@@ -21,7 +22,7 @@ class TaskController extends Controller
             'status' => 'required|in:pending,in-progress,completed',
         ]);
 
-        $task = Task::create($request->all());
+        $task = $request->user()->tasks()->create($request->all());
         return response()->json($task, 201);
     }
 
