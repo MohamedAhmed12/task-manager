@@ -9,8 +9,16 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $tasks = $request->user()->tasks;
-        return response()->json($tasks);
+        $status = $request->query('status');
+        
+        $q = $request->user()->tasks();
+
+        // Apply the status filter
+        if ($status) {
+            $q->where('status', $status); 
+        }
+
+        return response()->json($q->get());
     }
 
     public function store(Request $request)
