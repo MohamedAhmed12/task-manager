@@ -1,10 +1,7 @@
 "use client";
 
-import {deleteTask} from "../actions/deleteTask";
-import {fetchTasks} from "../actions/fetchTasks";
-import {columns} from "./task-columns";
-import {Icons} from "@/components/icons";
-import {Button} from "@/components/ui/button";
+import { Icons } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -13,15 +10,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {useQueryClient} from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {useState} from "react";
-import {toast} from "sonner";
+import { useState } from "react";
+import { toast } from "sonner";
+import { deleteTask } from "../actions/deleteTask";
+import { fetchTasks } from "../actions/fetchTasks";
+import { columns } from "./task-columns";
+import { UpdateTask } from "./update-task";
 
 export function TaskTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -70,7 +71,7 @@ export function TaskTable() {
                     onClick={() => header.column.toggleSorting()}
                     className="flex items-center space-x-2 cursor-pointer"
                   >
-                    <span>{header.column.columnDef.header}</span>
+                    <span>{header?.column?.columnDef?.header}</span>
                     {header.column.getIsSorted() ? (
                       header.column.getIsSorted() === "desc" ? (
                         <Icons.arrowDown className="h-4 w-4" />
@@ -96,11 +97,7 @@ export function TaskTable() {
                 </TableCell>
               ))}
               <TableCell className="flex gap-2">
-                <Icons.pencil
-                  size={15}
-                  color="black"
-                  className="cursor-pointer"
-                />
+                <UpdateTask originalTask={row.original} />
 
                 {deleteTaskIsPending &&
                 deleteTaskVariables == row.original.id ? (

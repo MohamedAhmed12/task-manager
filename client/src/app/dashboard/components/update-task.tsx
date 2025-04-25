@@ -1,23 +1,23 @@
 "use client";
 
-import {createTask} from "../actions/createTask";
+import {useUpdateTask} from "../hooks/useUpdateTask";
+import {Task} from "./task-columns";
 import TaskDialog, {TaskFormData} from "./task-dialog";
-import {useQueryClient} from "@tanstack/react-query";
 import {useState} from "react";
 import {toast} from "sonner";
 
-export function NewTask() {
+export function UpdateTask({originalTask}: {originalTask: Task}) {
   const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
+  const [task, setTask] = useState(originalTask);
 
-  const {mutateAsync, isPending} = createTask({
-    onSuccess: async () => {
-      toast.success("Task created successfully!");
+  const {mutateAsync, isPending} = useUpdateTask({
+    onSuccess: async (data) => {
+      toast.success("Task updated successfully!");
       setIsOpen(false);
-      // re-invoke react query cach so the new task reflected on the table
-      queryClient.invalidateQueries({
-        queryKey: ["fetchTasks"],
-      });
+
+      if (data) {
+        setTask(data);
+      }
     },
     onError: (error: Error) => {
       const errMsg: string =
@@ -27,7 +27,7 @@ export function NewTask() {
   });
 
   const onSubmit = async (data: TaskFormData) => {
-    await mutateAsync(data);
+    await mutateAsync({taskId: task.id, data});
   };
 
   return (
@@ -36,7 +36,8 @@ export function NewTask() {
       setIsOpen={setIsOpen}
       isPending={isPending}
       onSubmit={onSubmit}
-      actionType="create"
+      task={task}
+      actionType="update"
     />
   );
 }

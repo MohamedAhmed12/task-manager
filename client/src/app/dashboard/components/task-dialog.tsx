@@ -1,6 +1,5 @@
-import {TaskResponse} from "../actions/createTask";
-import {Icons} from "@/components/icons";
-import {Button} from "@/components/ui/button";
+import { Icons } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,13 +9,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {MutateOptions} from "@tanstack/react-query";
-import {useEffect} from "react";
-import {useForm} from "react-hook-form";
-import {z} from "zod";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Task } from "./task-columns";
 
 const taskSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
@@ -35,14 +34,8 @@ interface TaskDialogProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isPending: boolean;
-  // onSubmit: (data: TaskFormData) => Promise<void>;
-  onSubmit: (
-    variables: TaskFormData,
-    options?:
-      | MutateOptions<TaskResponse, Error, TaskFormData, unknown>
-      | undefined
-  ) => Promise<TaskResponse>;
-  task?: TaskFormData;
+  onSubmit: (data: TaskFormData) => Promise<void>;
+  task?: Task;
   actionType: "create" | "update";
 }
 
@@ -67,21 +60,25 @@ export default function TaskDialog({
   useEffect(() => {
     if (isOpen == false) {
       // reset form on closing the dialog
-      reset();
+      task ? reset(task) : reset();
     }
-  }, [isOpen]);
+  }, [isOpen, task, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="mb-10 cursor-pointer"
-          onClick={() => setIsOpen(true)}
-        >
-          <Icons.plus />
-          <span className="ml-2 capitalize">{actionType} task</span>
-        </Button>
+        {actionType === "create" ? (
+          <Button
+            variant="outline"
+            className="mb-10 cursor-pointer"
+            onClick={() => setIsOpen(true)}
+          >
+            <Icons.plus />
+            <span className="ml-2 capitalize">{actionType} task</span>
+          </Button>
+        ) : (
+          <Icons.pencil size={15} color="black" className="cursor-pointer" />
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
