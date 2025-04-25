@@ -1,9 +1,10 @@
 "use client";
 
-import { fetchTasks } from "../actions/fetchTasks";
-import { columns } from "./task-columns";
-import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import {deleteTask} from "../actions/deleteTask";
+import {fetchTasks} from "../actions/fetchTasks";
+import {columns} from "./task-columns";
+import {Icons} from "@/components/icons";
+import {Button} from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -12,18 +13,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {useQueryClient} from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import {useState} from "react";
+import {toast} from "sonner";
 
 export function TaskTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const queryClient = useQueryClient();
 
   const {data, isLoading, isFetched} = fetchTasks();
+  const {
+    mutateAsync,
+    isSuccess: deleteTaskIsSuccess,
+    isPending: deleteTaskIsPending,
+    variables: deleteTaskVariables,
+  } = deleteTask();
 
   const table = useReactTable({
     data: data?.data || [],
@@ -34,12 +44,21 @@ export function TaskTable() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const handleDelete = (taskId: number) => {
-    console.log(taskId);
+  const handleDelete = async (taskId: number) => {
+    const res = await mutateAsync(taskId);
+
+    if (res.status || deleteTaskIsSuccess) {
+      toast.success("Task deleted successfully!");
+
+      // re-invoke react query cash to update the tasks listed in it
+      queryClient.invalidateQueries({
+        queryKey: ["fetchTasks"],
+      });
+    }
   };
 
   return (
-    <div className="flex flex-col overflow-x-auto w-full rounded-md border min-h-[300px]">
+    <div className="flex flex-col overflow-x-auto w-full rounded-md border">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -82,12 +101,22 @@ export function TaskTable() {
                   color="black"
                   className="cursor-pointer"
                 />
-                <Icons.trash
-                  size={15}
-                  color="red"
-                  className="cursor-pointer"
-                  onClick={() => handleDelete(row.original.id)} 
-                />
+
+                {deleteTaskIsPending &&
+                deleteTaskVariables == row.original.id ? (
+                  <Icons.loaderCircle
+                    size={15}
+                    color="#0f4763"
+                    className="animate-spin"
+                  />
+                ) : (
+                  <Icons.trash
+                    size={15}
+                    color="red"
+                    className="cursor-pointer"
+                    onClick={() => handleDelete(row.original.id)}
+                  />
+                )}
               </TableCell>
             </TableRow>
           ))}
@@ -95,7 +124,7 @@ export function TaskTable() {
       </Table>
 
       {isLoading && (
-        <div className="flex flex-col gap-2 flex-1 items-center justify-center w-full h-full">
+        <div className="flex flex-col gap-2 flex-1 items-center justify-center w-full h-full  min-h-[300px]">
           <Icons.loaderCircle color="#0f4763" className="animate-spin" />
           <span>Loading Data...</span>
         </div>

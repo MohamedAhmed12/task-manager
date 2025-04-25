@@ -15,6 +15,7 @@ import {
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {zodResolver} from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {toast} from "sonner";
@@ -35,6 +36,7 @@ export type TaskFormData = z.infer<typeof taskSchema>;
 
 export function NewTaskDialog() {
   const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -50,6 +52,10 @@ export function NewTaskDialog() {
       toast.success("Task created successfully!");
       setIsOpen(false);
       reset();
+      // re-invoke react query cash to update the tasks listed in it
+      queryClient.invalidateQueries({
+        queryKey: ["fetchTasks"],
+      });
     },
     onError: (error: Error) => {
       const errMsg: string =
