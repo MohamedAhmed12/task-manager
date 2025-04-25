@@ -20,15 +20,21 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { deleteTask } from "../actions/deleteTask";
-import { fetchTasks } from "../actions/fetchTasks";
-import { columns } from "./task-columns";
+import { columns, Task } from "./task-columns";
 import { UpdateTask } from "./update-task";
 
-export function TaskTable() {
+export function TaskTable({
+  tasks,
+  isLoading,
+  isFetched,
+}: {
+  tasks: Task[];
+  isLoading: boolean;
+  isFetched: boolean;
+}) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const queryClient = useQueryClient();
 
-  const {data, isLoading, isFetched} = fetchTasks();
   const {
     mutateAsync,
     isSuccess: deleteTaskIsSuccess,
@@ -37,7 +43,7 @@ export function TaskTable() {
   } = deleteTask();
 
   const table = useReactTable({
-    data: data?.data || [],
+    data: tasks,
     columns,
     state: {sorting},
     onSortingChange: setSorting,
@@ -47,14 +53,9 @@ export function TaskTable() {
 
   const handleDelete = async (taskId: number) => {
     const res = await mutateAsync(taskId);
-
     if (res.status || deleteTaskIsSuccess) {
       toast.success("Task deleted successfully!");
-
-      // re-invoke react query cash to update the tasks listed in it
-      queryClient.invalidateQueries({
-        queryKey: ["fetchTasks"],
-      });
+      queryClient.invalidateQueries({queryKey: ["fetchTasks"]});
     }
   };
 
@@ -97,6 +98,7 @@ export function TaskTable() {
                 </TableCell>
               ))}
               <TableCell className="flex gap-2">
+                
                 <UpdateTask originalTask={row.original} />
 
                 {deleteTaskIsPending &&
@@ -121,14 +123,14 @@ export function TaskTable() {
       </Table>
 
       {isLoading && (
-        <div className="flex flex-col gap-2 flex-1 items-center justify-center w-full h-full  min-h-[300px]">
+        <div className="flex flex-col gap-2 flex-1 items-center justify-center w-full h-full min-h-[300px]">
           <Icons.loaderCircle color="#0f4763" className="animate-spin" />
           <span>Loading Data...</span>
         </div>
       )}
 
-      {isFetched && !data && (
-        <div className="flex flex-col gap-2 flex-1 items-center justify-center w-full h-full">
+      {isFetched && !tasks?.length && (
+        <div className="flex flex-col gap-2 flex-1 items-center justify-center w-full h-full min-h-[300px]">
           No data available
         </div>
       )}

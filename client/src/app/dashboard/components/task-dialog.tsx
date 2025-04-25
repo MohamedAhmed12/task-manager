@@ -70,7 +70,7 @@ export default function TaskDialog({
         {actionType === "create" ? (
           <Button
             variant="outline"
-            className="mb-10 cursor-pointer"
+            className="cursor-pointer"
             onClick={() => setIsOpen(true)}
           >
             <Icons.plus />
