@@ -1,15 +1,7 @@
-import {QueryClient, QueryClientProvider} from "react-query";
+import { redirect } from 'next/navigation'
 
-import axiosInstance from "../../lib/axios";
-
-const queryClient = new QueryClient();
-
-function MyApp({Component, pageProps}) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />
-    </QueryClientProvider>
-  );
+function MyApp() {
+  redirect('/dashboard')
 }
 
 export default MyApp;

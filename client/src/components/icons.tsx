@@ -3,7 +3,9 @@ import {
   ArrowUp,
   ChevronsUpDown,
   LoaderCircle,
+  Pencil,
   Plus,
+  Trash2,
   User,
 } from "lucide-react";
 
@@ -14,6 +16,8 @@ export const Icons = {
   arrowDown: ArrowDown,
   chevronsUpDown: ChevronsUpDown,
   plus: Plus,
+  pencil: Pencil,
+  trash: Trash2,
 };
 
 export type iconNameType = keyof typeof Icons;
